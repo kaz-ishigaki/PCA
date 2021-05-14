@@ -1,0 +1,29 @@
+PLINK v1.90b3v 64-bit (15 Jul 2015)
+Options in effect:
+  --bfile /data/srlab/external-data/1000genomes_plink/1KG_p3v5_nodup.1
+  --extract pruned.common.10000.snps
+  --memory 20000
+  --out pruned.common.10000.snps
+  --pca
+
+Hostname: cn001.research.partners.org
+Working directory: /data/srlab/kishigaki/wd/minijobs/PCA_demo
+Start time: Mon Nov 11 20:55:29 2019
+
+Random number seed: 1573523729
+128936 MB RAM detected; reserving 20000 MB for main workspace.
+6468090 variants loaded from .bim file.
+2504 people (0 males, 0 females, 2504 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to pruned.common.10000.snps.nosex .
+--extract: 10000 variants remaining.
+Using up to 23 threads (change this with --threads).
+Before main variant filters, 2504 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.995798.
+10000 variants and 2504 people pass filters and QC.
+Note: No phenotypes present.
+Relationship matrix calculation complete.
+--pca: Results saved to pruned.common.10000.snps.eigenval and
+pruned.common.10000.snps.eigenvec .
+
+End time: Mon Nov 11 20:55:37 2019

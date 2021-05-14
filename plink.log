@@ -1,0 +1,98 @@
+# Prepare input data for PCA demo
+# Use 1KG chr1 genotype data
+
+wd=/data/srlab/kishigaki/wd/minijobs/PCA_demo
+cd $wd
+
+module load plink/1.90b3
+
+
+ # population information
+sed -e "1d" /data/srlab/external-data/1000genomes/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel |
+awk '{print $1, $3}' > pop.info
+
+
+ #pruning
+plink --bfile /data/srlab/external-data/1000genomes_plink/1KG_p3v5_nodup.1 \
+   --indep-pairwise 500 50 0.1 \
+   --memory 20000 \
+   --threads 1 \
+   --chr 1 \
+   --allow-no-sex \
+   --out ld
+
+
+ #calculate allele freq.
+plink --bfile /data/srlab/external-data/1000genomes_plink/1KG_p3v5_nodup.1 \
+   --extract ld.prune.in \
+   --memory 20000 \
+   --threads 1 \
+   --freq \
+   --allow-no-sex \
+   --out ld
+
+
+ #common variants (MAF>0.05)
+sed -e "1d" ld.frq |
+awk '{if( $5 > 0.05 ){ print $2 }}' > pruned.common.snps #27837
+
+shuf pruned.common.snps | head -n 10000 > pruned.common.10000.snps
+
+
+ #low frequency variants
+sed -e "1d" ld.frq |
+awk '{if( $5 <= 0.05 ){ print $2 }}' > pruned.lowfreq.snps #3,248,661
+
+shuf pruned.lowfreq.snps | head -n 10000 >   pruned.lowfreq.10000.snps
+
+
+ #prepare dosage matrix (common vars)
+plink --bfile /data/srlab/external-data/1000genomes_plink/1KG_p3v5_nodup.1 \
+   --extract pruned.common.10000.snps \
+   --memory 20000 \
+   --recode vcf \
+   --out tmp
+
+cat tmp.vcf |
+awk '{ if($1 !~/^##/){ print }}' |
+cut -f 3,10- > tmp01
+
+cat tmp01 |
+sed  -e "s/0\/0/0/g"  -e "s/0\/1/1/g" -e "s/1\/0/1/g" -e "s/1\/1/2/g" |
+perl -pe "s/\t/ /g" |
+grep -F -v "/" > 1000g_chr1_pruned_common.dosage
+
+gzip -f 1000g_chr1_pruned_common.dosage
+
+
+ #prepare dosage matrix (low freq.)
+plink --bfile /data/srlab/external-data/1000genomes_plink/1KG_p3v5_nodup.1 \
+   --extract pruned.lowfreq.10000.snps \
+   --memory 20000 \
+   --recode vcf \
+   --out tmp
+
+cat tmp.vcf |
+awk '{ if($1 !~/^##/){ print }}' |
+cut -f 3,10- > tmp01
+
+cat tmp01 |
+sed  -e "s/0\/0/0/g"  -e "s/0\/1/1/g" -e "s/1\/0/1/g" -e "s/1\/1/2/g" |
+perl -pe "s/\t/ /g" |
+grep -F -v "/" > 1000g_chr1_pruned_lowfreq.dosage
+
+gzip -f 1000g_chr1_pruned_lowfreq.dosage
+
+
+ #plink pca (common vars)
+plink --bfile /data/srlab/external-data/1000genomes_plink/1KG_p3v5_nodup.1 \
+   --extract pruned.common.10000.snps \
+   --memory 20000 \
+   --pca \
+   --out  pruned.common.10000.snps
+
+
+ #clean up
+rm tmp*
+rm ld.*
+
