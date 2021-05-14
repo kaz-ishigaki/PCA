@@ -6,3 +6,6 @@ This page contains the dataset and codes to practice PCA using R. Since we are p
 ## Plink outputs
 We are also familiar with Plink outputs. Let's use it as a gold standard in this page.
 
+## Jupyter notebook (R codes)
+- demo01_center_scaling.ipynb: this scripts were provided to understand how centering and scaling is critical for PCA. Centering is always important. Scaling is especially important when you have rare variants.
+
